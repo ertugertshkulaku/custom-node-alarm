@@ -1,0 +1,46 @@
+<section [formGroup]="alarmsCountConfigForm" fxLayout="column">
+  <tb-output-message-type-autocomplete required formControlName="outMsgType"></tb-output-message-type-autocomplete>
+
+  <mat-checkbox formControlName="countAlarmsForPropagationEntities">
+    {{ 'tb.rulenode.count-alarms-for-propagation-entities' | translate }}
+  </mat-checkbox>
+
+  <div class="tb-hint" translate>
+    tb.rulenode.count-alarms-for-propagation-entities-info
+  </div>
+
+  <div fxFlex *ngIf="alarmsCountConfigForm.get('countAlarmsForPropagationEntities').value">
+    <label class="tb-title no-padding">
+      {{ 'tb.rulenode.propagation-entity-types' | translate }}
+    </label>
+
+    <tb-entity-type-list
+      fxFlex
+      formControlName="propagationEntityTypes"
+      [allowedEntityTypes]="propagationEntityTypes"
+      [ignoreAuthorityFilter]="true"
+    >
+    </tb-entity-type-list>
+
+    <div class="tb-hint" translate>
+      tb.rulenode.propagation-entity-types-info
+    </div>
+  </div>
+
+  <tb-queue-autocomplete
+    [queueType]="serviceType"
+    formControlName="queueName">
+  </tb-queue-autocomplete>
+
+  <mat-expansion-panel [expanded]="true">
+    <mat-expansion-panel-header>
+      <mat-panel-title translate>tb.rulenode.alarms-count-mappings</mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <tb-alarms-count-mapping-table
+      required
+      formControlName="alarmsCountMappings"
+      style="padding-bottom: 15px;">
+    </tb-alarms-count-mapping-table>
+  </mat-expansion-panel>
+</section>
