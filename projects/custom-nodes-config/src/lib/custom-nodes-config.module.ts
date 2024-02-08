@@ -6,9 +6,7 @@ import {
 } from '@ngx-translate/core';
 import addCustomNodesLocaleEnglish from './locale/custom-nodes-locale.constant';
 import { SharedModule } from '@shared/public-api';
-import { CustomNodesConfigFilterModule } from './components/filter/custom-nodes-config-filter.module';
-import { CustomNodesConfigEnrichmentModule } from './components/enrichment/custom-nodes-config-enrichment.module';
-import { CustomNodesConfigTransformModule } from './components/transform/custom-nodes-config-transform.module';
+import {CustomNodesConfigAlarmModule} from './components/alarms/custom-nodes-config-alarm.module';
 
 @NgModule({
   imports: [
@@ -17,9 +15,9 @@ import { CustomNodesConfigTransformModule } from './components/transform/custom-
     HomeComponentsModule
   ],
   exports: [
-    CustomNodesConfigFilterModule,
-    CustomNodesConfigEnrichmentModule,
-    CustomNodesConfigTransformModule
+    CustomNodesConfigAlarmModule
+  ],
+  declarations: [
   ]
 })
 export class CustomNodesConfigModule {

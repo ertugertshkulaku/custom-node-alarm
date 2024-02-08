@@ -1,5 +1,6 @@
 import { TranslateService } from '@ngx-translate/core';
 
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export default function addCustomNodesLocaleEnglish(translate: TranslateService) {
 
     const enUS = {
