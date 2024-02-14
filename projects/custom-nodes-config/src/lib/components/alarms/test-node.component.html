@@ -1,0 +1,234 @@
+<form [formGroup]="alarmsCountConfigForm" fxLayout="column">
+    <div>
+        <tb-output-message-type-autocomplete required formControlName="outMsgType">
+
+        </tb-output-message-type-autocomplete>
+    </div>
+    <br>
+
+    <div>
+        <mat-checkbox formControlName="countAlarmsForPropagationEntities">
+            tb.rulenode.count-alarms-for-propagation-entities
+        </mat-checkbox>
+    </div>
+    <br>
+
+    <div class="tb-hint" translate>
+        tb.rulenode.propagation-entity-types
+    </div>
+
+    <br>
+    <div fxFlex *ngIf="alarmsCountConfigForm.get('countAlarmsForPropagationEntities')?.value">
+        <label class="tb-title no-padding">
+            tb.rulenode.propagation-entity-types
+        </label>
+
+        <tb-entity-type-list fxFlex formControlName="propagationEntityTypes"
+            [allowedEntityTypes]="propagationEntityTypes" [ignoreAuthorityFilter]="true">
+        </tb-entity-type-list>
+
+        <div class="tb-hint" translate>
+            tb.rulenode.propagation-entity-types-info
+        </div>
+    </div>
+    <br>
+
+    <div>
+        <tb-queue-autocomplete [queueType]="'TB_RULE_ENGINE'" formControlName="queueName">
+        </tb-queue-autocomplete>
+    </div>
+    <br>
+
+    <mat-expansion-panel [expanded]="true">
+        <mat-expansion-panel-header>
+            <mat-panel-title translate>tb.rulenode.alarms-count-mappings</mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <ng-template matExpansionPanelContent>
+            <ng-container formArrayName="alarmsCountMappings"
+                style="padding: 10px; border-radius: 5px; margin-top: 10px; overflow-x: hidden"
+                *ngFor="let map of alarmsCountConfigForm.get('alarmsCountMappings')['controls']; let k = index;">
+                <div style="flex-direction: row; box-sizing: border-box; display: flex; place-content: center flex-start; align-items: center; flex: 1 1 0%;">
+                    Count ({{ map.get('statusList').value ? map.get('statusList').value : 'All alarms' }} and  
+                    {{ map.get('severityList').value }} and {{ map.get('typesList').value }})-&gt; {{ map.get('target').value }}
+
+                    <button mat-icon-button color="primary" style="min-width: 40px;" type="button"
+                            (click)="editMapping(k, map)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button color="primary" style="min-width: 40px;" type="button"
+                            (click)="removeMapping(k)">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                </div>
+                <!-- <div [formGroupName]="k">
+                    <div style="display: flex; flex-direction: row;"><br>
+                        <mat-form-field style="margin-right: 2px;">
+                            <textarea formControlName="statusList"> Count [{{ map.get('statusList').value }} and </textarea>
+                        </mat-form-field>
+                        <mat-form-field style="margin-right: 2px;">
+                            <textarea formControlName="severityList">{{ map.get('severityList').value }} and </textarea>
+                        </mat-form-field>
+                        <mat-form-field style="margin-right: 2px;">
+                            <textarea formControlName="typesList"> {{ map.get('typesList').value }}]-&gt;</textarea>
+                        </mat-form-field>
+                        <mat-form-field style="margin-right: 2px;">
+                            <textarea formControlName="target">{{ map.get('target').value }}</textarea>
+                        </mat-form-field>
+                        <button mat-icon-button color="primary" style="min-width: 40px;" type="button"
+                            (click)="editMapping(k)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button color="primary" style="min-width: 40px;" type="button"
+                            (click)="removeMapping(k)">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </div>
+                </div> -->
+            </ng-container>
+        </ng-template>
+        <div>
+            <button mat-button (click)="openDialog()">Add</button>
+        </div>
+    </mat-expansion-panel>
+</form>
+
+
+<!-- ADD MAPPING -->
+<ng-template #dialogTemplate let-dialogRef="dialogRef">
+    <mat-dialog-content>
+        <form [formGroup]="alarmsCountMappingFormGroup" style="width: 650px;">
+            <mat-toolbar fxLayout="row" color="primary">
+                <h2>{{ (isAdd ? 'tb.rulenode.add-mapping' : 'tb.rulenode.edit-mapping') | translate}}</h2>
+                <span fxFlex></span>
+                <button mat-icon-button (click)="cancel()" type="button">
+                    <mat-icon class="material-icons">close</mat-icon>
+                </button>
+            </mat-toolbar>
+            <mat-progress-bar color="warn" mode="indeterminate" *ngIf="isLoading$ | async"></mat-progress-bar>
+            <div style="height: 4px;" *ngIf="!(isLoading$ | async)"></div>
+            
+            <div mat-dialog-content>
+                <fieldset [disabled]="isLoading$ | async">
+                    <div fxFlex fxLayout="column">
+                        <mat-form-field fxFlex class="mat-block">
+                            <mat-label translate>tb.rulenode.target-telemetry</mat-label>
+                            <input matInput formControlName="target">
+                            <mat-error *ngIf="alarmsCountMappingFormGroup.get('target').hasError('required')">
+                                tb.rulenode.target-telemetry-required
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+                </fieldset>
+
+                <br>
+                <div>
+                    <mat-form-field style="width: 100%;">
+                        <mat-label>
+                            tb.rulenode.status-filter
+                        </mat-label>
+                        <mat-select formControlName="statusList" multiple>
+                            <mat-select-trigger>
+                                <mat-chip-list>
+                                    <mat-chip
+                                        *ngFor="let status of alarmsCountMappingFormGroup.get('statusList').value;"
+                                        [removable]="true" (removed)="remove(status, 'status')">
+                                        {{ status }}
+                                        <mat-icon matChipRemove>cancel</mat-icon>
+                                    </mat-chip>
+                                </mat-chip-list>
+                            </mat-select-trigger>
+
+                            <mat-option *ngFor="let alrStatus of alarmStatusList" [value]="alrStatus">
+                                <div fxFlex="50" style="width: 50px;" fxLayoutAlign="start">
+                                    {{alrStatus}}
+                                </div>
+                            </mat-option>
+
+                        </mat-select>
+
+                    </mat-form-field>
+                </div>
+                <br>
+
+                <div>
+                    <mat-form-field style="width: 100%;">
+                        <mat-label>
+                            tb.rulenode.severity-filter
+                        </mat-label>
+                        <mat-select formControlName="severityList" multiple>
+                            <mat-select-trigger>
+                                <mat-chip-list>
+                                    <mat-chip
+                                        *ngFor="let severity of alarmsCountMappingFormGroup.get('severityList').value;"
+                                        [removable]="true" (removed)="remove(severity, 'severity')">
+                                        {{ severity }}
+                                        <mat-icon matChipRemove>cancel</mat-icon>
+                                    </mat-chip>
+                                </mat-chip-list>
+                            </mat-select-trigger>
+
+                            <mat-option *ngFor="let severity of severityFilterList" [value]="severity">
+                                <div fxFlex="50" style="width: 50px;" fxLayoutAlign="start">
+                                    {{severity}}
+                                </div>
+                            </mat-option>
+
+                        </mat-select>
+
+                    </mat-form-field>
+                </div>
+                <br>
+
+                <div>
+                    <mat-form-field style="width: 100%;">
+                        <mat-label>
+                            tb.rulenode.type-filter
+                        </mat-label>
+                        <mat-chip-grid #chipGrid aria-label="Type filter" formControlName="typesList">
+                            <mat-chip-row *ngFor="let type of typesFilterList" (removed)="remove(type, 'type')"
+                                [editable]="true" [aria-description]="'+ Alarm type'">
+                                {{type}}
+                                <button matChipRemove [attr.aria-label]="'remove ' + type">
+                                    <mat-icon>cancel</mat-icon>
+                                </button>
+                            </mat-chip-row>
+
+                            <input placeholder="+ Alarm type" [matChipInputFor]="chipGrid"
+                                (matChipInputTokenEnd)="addChip($event)" />
+                        </mat-chip-grid>
+                    </mat-form-field>
+                </div>
+                <br>
+
+                <div style="width: 100%;">{{specifyInterval |json}}
+                    <mat-checkbox [checked]="specifyInterval" formControlName="specifyInterval"
+                        (change)="checkSpecifyInterval($event)">{{'tb.rulenode.specify-interval'|translate}}</mat-checkbox>
+                </div>
+                <br>
+
+                <div *ngIf="specifyInterval">
+                    <tb-timeinterval formControlName="latestInterval" class="history-time-input" [fxShow]="true"
+                        style="padding-top: 8px;"></tb-timeinterval>
+                </div>
+
+
+            </div>
+        </form>
+    </mat-dialog-content>
+
+    <mat-dialog-actions>
+        <div mat-dialog-actions fxLayout="row" fxLayoutAlign="end center">
+            <span fxFlex></span>{{alarmsCountMappingFormGroup.invalid | json}} {{alarmsCountMappingFormGroup.dirty |
+            json}}
+            <button mat-button color="primary" type="button" (click)="saveMapping()" [disabled]="(isLoading$ | async) ">
+                <!--|| alarmsCountMappingFormGroup.invalid || !alarmsCountMappingFormGroup.dirty-->
+                {{ (isAdd ? 'action.add' : 'action.save') }}
+            </button>
+            <button mat-button color="primary" style="margin-right: 20px;" type="button"
+                [disabled]="(isLoading$ | async)" (click)="cancel()" cdkFocusInitial>
+                action.cancel
+            </button>
+        </div>
+    </mat-dialog-actions>
+</ng-template>

@@ -1,3 +1,3 @@
-export * from './analytics-node-alarms-count-config.component';
+export * from './test-node.component';
 
 export * from './custom-nodes-config-alarm.module';

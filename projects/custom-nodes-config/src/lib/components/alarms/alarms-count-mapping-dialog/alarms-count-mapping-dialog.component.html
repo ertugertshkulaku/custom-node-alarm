@@ -1,6 +1,6 @@
-<form [formGroup]="alarmsCountMappingFormGroup" (ngSubmit)="save()" style="width: 650px;">
+<!-- <form [formGroup]="alarmsCountMappingFormGroup" (ngSubmit)="save()" style="width: 650px;">
   <mat-toolbar fxLayout="row" color="primary">
-    <h2>{{ (isAdd ? 'tb.rulenode.add-mapping' : 'tb.rulenode.edit-mapping') | translate }}</h2>
+    <h2>{{ (isAdd ? 'tb.rulenode.add-mapping' : 'tb.rulenode.edit-mapping') }}</h2>|
     <span fxFlex></span>
     <button mat-icon-button (click)="cancel()" type="button">
       <mat-icon class="material-icons">close</mat-icon>
@@ -15,26 +15,108 @@
           <mat-label translate>tb.rulenode.target-telemetry</mat-label>
           <input required matInput formControlName="target">
           <mat-error *ngIf="alarmsCountMappingFormGroup.get('target').hasError('required')">
-            {{ 'tb.rulenode.target-telemetry-required' | translate }}
+            tb.rulenode.target-telemetry-required
           </mat-error>
-        </mat-form-field>
-        <!-- Add other form fields and controls here -->
+        </mat-form-field>       
       </div>
     </fieldset>
+    
+    <br>
+    <div>
+      <mat-form-field style="width: 100%;">
+        <mat-label>
+          tb.rulenode.status-filter
+        </mat-label>
+        <mat-select formControlName="statusList" multiple>
+          <mat-select-trigger>
+            <mat-chip-list>
+              <mat-chip
+                *ngFor="let status of alarmsCountMappingFormGroup.get('statusList').value;"
+                [removable]="true" (removed)="remove(status, 'status')">
+                {{ status }}
+                <mat-icon matChipRemove>cancel</mat-icon>
+              </mat-chip>
+            </mat-chip-list>
+          </mat-select-trigger>
+
+          <mat-option *ngFor="let alrStatus of alarmStatusList" [value]="alrStatus">
+            <div fxFlex="50" style="width: 50px;" fxLayoutAlign="start">
+              {{alrStatus}}
+            </div>
+          </mat-option>
+
+        </mat-select>
+
+      </mat-form-field>
+    </div>
+    <br>
+
+    <div>
+      <mat-form-field style="width: 100%;">
+        <mat-label>
+          tb.rulenode.severity-filter
+        </mat-label>
+        <mat-select formControlName="severityList" multiple>
+          <mat-select-trigger>
+            <mat-chip-list>
+              <mat-chip
+                *ngFor="let severity of alarmsCountMappingFormGroup.get('severityList').value;"
+                [removable]="true" (removed)="remove(severity, 'severity')">
+                {{ severity }}
+                <mat-icon matChipRemove>cancel</mat-icon>
+              </mat-chip>
+            </mat-chip-list>
+          </mat-select-trigger>
+
+          <mat-option *ngFor="let severity of severityFilterList" [value]="severity">
+            <div fxFlex="50" style="width: 50px;" fxLayoutAlign="start">
+              {{severity}}
+            </div>
+          </mat-option>
+
+        </mat-select>
+
+      </mat-form-field>
+    </div>
+    <br>
+
+    <div>
+      <mat-form-field style="width: 100%;">
+        <mat-label>
+          tb.rulenode.type-filter
+        </mat-label>
+        <mat-chip-grid #chipGrid aria-label="Type filter">
+          <mat-chip-row *ngFor="let type of typesFilterList"
+                        (removed)="remove(type, 'type')"
+                        [editable]="true"
+                        [aria-description]="'+ Alarm type'">
+            {{type}}
+            <button matChipRemove [attr.aria-label]="'remove ' + type">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip-row>
+
+          <input placeholder="+ Alarm type"
+                 [matChipInputFor]="chipGrid"
+                 (matChipInputTokenEnd)="addChip($event)"/>
+        </mat-chip-grid>
+      </mat-form-field>
+    </div>
+
   </div>
   <div mat-dialog-actions fxLayout="row" fxLayoutAlign="end center">
     <span fxFlex></span>
     <button mat-button mat-raised-button color="primary"
             type="submit"
             [disabled]="(isLoading$ | async) || alarmsCountMappingFormGroup.invalid || !alarmsCountMappingFormGroup.dirty">
-      {{ (isAdd ? 'action.add' : 'action.save') | translate }}
+      {{ (isAdd ? 'action.add' : 'action.save') }} 
     </button>
     <button mat-button color="primary"
             style="margin-right: 20px;"
             type="button"
             [disabled]="(isLoading$ | async)"
             (click)="cancel()" cdkFocusInitial>
-      {{ 'action.cancel' | translate }}
+            action.cancel
     </button>
   </div>
-</form>
+</form> -->
