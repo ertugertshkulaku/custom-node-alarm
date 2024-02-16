@@ -12,7 +12,9 @@ import { TestNodeComponent } from './test-node.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { TimeintervalComponent } from '@shared/components/time/timeinterval.component';
+import {AlDialogComponent} from './alarms-count-mapping-dialog/al-dialog';
+
+
 
 
 
@@ -22,25 +24,27 @@ import { TimeintervalComponent } from '@shared/components/time/timeinterval.comp
   declarations: [
     OutputMessageTypeAutocompleteComponent,
     TestNodeComponent,
+    AlDialogComponent,
+
     //TimeintervalComponent
-    //  QueueAutocompleteComponent,   
+    //  QueueAutocompleteComponent,
 
     ],
-  imports: [
-    CommonModule,
-    SharedModule,
-    MatFormFieldModule,
-    MatDialogModule,
-    MatIconModule,
-    MatChipsModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatAutocompleteModule,
-    MatSelectModule,
-    MatCheckboxModule,
-    MatSlideToggleModule
-  ]
-  ,
+    imports: [
+        CommonModule,
+        SharedModule,
+        MatFormFieldModule,
+        MatDialogModule,
+        MatIconModule,
+        MatChipsModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatAutocompleteModule,
+        MatSelectModule,
+        MatCheckboxModule,
+        MatSlideToggleModule
+    ]
+    ,
   exports: [
     TestNodeComponent
     //AnalyticsNodeAlarmsCountConfigComponent

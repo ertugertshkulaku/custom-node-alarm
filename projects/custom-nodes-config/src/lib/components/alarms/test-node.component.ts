@@ -12,6 +12,7 @@ import { ServiceType } from '@shared/models/queue.models';
 import { Timewindow } from '@shared/models/time/time.models';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
+import { AlDialogComponent} from './alarms-count-mapping-dialog/al-dialog';
 
 @Component({
   selector: 'tb-test-node',
@@ -19,6 +20,8 @@ import { MatDialog } from '@angular/material/dialog';
   styleUrls: []
 })
 export class TestNodeComponent extends RuleNodeConfigurationComponent {
+
+  testfrm: string = ''
 
   alarmsCountConfigForm: FormGroup;
   propagationEntityTypes: Array<EntityType | AliasEntityType>;
@@ -34,7 +37,7 @@ export class TestNodeComponent extends RuleNodeConfigurationComponent {
 
   @ViewChild('dialogTemplate') dialogTemplate!: TemplateRef<any>;
 
-  
+
   constructor(protected store: Store<AppState>,
               private fb: FormBuilder,
               private dialog: MatDialog
@@ -47,19 +50,34 @@ export class TestNodeComponent extends RuleNodeConfigurationComponent {
   }
 
   protected onConfigurationSet(configuration: RuleNodeConfiguration) {
-    console.log(configuration, "Configuration");
-    
+    console.log(configuration, 'Configuration');
+
     this.alarmsCountConfigForm = this.fb.group({
       alarmsCountMappings: this.fb.array([]),
       countAlarmsForPropagationEntities: new FormControl(configuration?.countAlarmsForPropagationEntities),
       propagationEntityTypes: new FormControl(configuration?.propagationEntityTypes),
       outMsgType:new FormControl(configuration?.outMsgType),
       queueName: new FormControl(configuration?.queueName),
-    });   
+      latestInterval: new FormControl(null),
+      specifyInterval: new FormControl(this.specifyInterval),
+    });
+    this.addAlarmCountMappings()
+  }
+  addAlarmCountMappings(){
+    this.alarmsCountMappingFormGroup = this.fb.group({
+      target: new FormControl(null, [Validators.required]),
+      typesList: new FormControl(null),
+      severityList: new FormControl(null),
+      statusList: new FormControl(null),
+      specifyInterval: new FormControl(this.specifyInterval),
+      latestInterval: new FormControl(null)
+});
+    this.alarmsCountMappingsList = this.alarmsCountConfigForm.get('alarmsCountMappings') as FormArray;
+    this.alarmsCountMappingsList.push(this.createCountMappingsForm());
   }
 
   createCountMappingsForm(): FormGroup{
-   this.alarmsCountMappingFormGroup = this.fb.group({
+   return this.alarmsCountMappingFormGroup = this.fb.group({
           target: new FormControl(null, [Validators.required]),
           typesList: new FormControl(null),
           severityList: new FormControl(null),
@@ -67,18 +85,11 @@ export class TestNodeComponent extends RuleNodeConfigurationComponent {
           specifyInterval: new FormControl(this.specifyInterval),
           latestInterval: new FormControl(null)
     });
-
-    return this.alarmsCountMappingFormGroup;
   }
 
-  addAlarmCountMappings(){
-    this.alarmsCountMappingsList = this.alarmsCountConfigForm.get('alarmsCountMappings') as FormArray;   
-    this.alarmsCountMappingsList.push(this.createCountMappingsForm());
 
-    console.log( this.alarmsCountMappingFormGroup.value, "Forma")
-  }
 
-  
+
   saveMapping(){
     console.log(this.alarmsCountMappingFormGroup, "MAp form");
 
@@ -93,7 +104,7 @@ export class TestNodeComponent extends RuleNodeConfigurationComponent {
       this.alarmMappingObject = alarmMappingObj;
 
       console.log(this.alarmMappingObject, " Mapping obj");
-     this.dialogRef.close(); 
+     this.dialogRef.close();
 
   }
 
@@ -151,10 +162,25 @@ export class TestNodeComponent extends RuleNodeConfigurationComponent {
     if(event === true){
 
       this.alarmsCountMappingFormGroup.get('latestInterval').setValidators(Validators.required);
-      
+
       this.alarmsCountMappingFormGroup.updateValueAndValidity();
     }
   }
+
+//   specifyIntervalChange() {
+//     this.specifyInterval ? (this.alarmsCountMappingFormGroup.get("latestInterval").setValue(10, {
+//         emitEvent: !0
+//     }),
+//     this.alarmsCountMappingFormGroup.get("latestInterval").enable({
+//         emitEvent: !0
+//     })) : (this.alarmsCountMappingFormGroup.get("latestInterval").setValue(0, {
+//         emitEvent: !0
+//     }),
+//     this.alarmsCountMappingFormGroup.get("latestInterval").disable({
+//         emitEvent: !0
+//     })),
+//     this.alarmsCountMappingFormGroup.get("latestInterval").markAsDirty()
+// }
 
 
   protected prepareInputConfig(configuration: RuleNodeConfiguration): RuleNodeConfiguration {
@@ -169,16 +195,18 @@ export class TestNodeComponent extends RuleNodeConfigurationComponent {
   }
 
   openDialog(){
-    this.dialogRef = this.dialog.open(this.dialogTemplate, {
+    this.addAlarmCountMappings();
+    console.log(this.alarmsCountMappingFormGroup)
+    this.dialogRef = this.dialog.open(AlDialogComponent, {
       width: 'auto',
-      data: {}
+      data: this.alarmsCountMappingFormGroup
     });
 
     this.dialogRef.afterClosed().subscribe(result => {
-     
-    }); 
- 
-    this.addAlarmCountMappings(); 
+
+    });
+
+
 
   }
 
@@ -186,13 +214,13 @@ export class TestNodeComponent extends RuleNodeConfigurationComponent {
     const alarmsCountMappings = this.alarmsCountConfigForm.get('alarmsCountMappings') as FormArray;
     const lastIndex = alarmsCountMappings.length - 1;
     alarmsCountMappings.removeAt(lastIndex);
-      
-    this.dialogRef.close(); 
+
+    this.dialogRef.close();
   }
 
   editMapping(index: any, mapping: any){
     console.log(mapping, "EDIT Mapping", index);
-    
+
   }
 
   removeMapping(index: number) {

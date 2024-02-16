@@ -1,36 +1,33 @@
 import { Component, EventEmitter, Inject, InjectionToken, OnInit, Output, SkipSelf } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatChipInputEvent } from '@angular/material/chips';
-import { ErrorStateMatcher } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import { AppState } from 'thingsboard/src/app/core/core.state';
-import { AddEntitiesToCustomerDialogData } from 'thingsboard/src/app/modules/home/dialogs/add-entities-to-customer-dialog.component';
-import { DialogComponent } from '@shared/components/dialog.component';
+import {DialogComponent} from "./dialog.component";
 
 @Component({
-  selector: 'tb-alarms-count-mapping-dialog',
-  templateUrl: './alarms-count-mapping-dialog.component.html',
-  styleUrls: ['./alarms-count-mapping-dialog.component.scss']
+  selector: 'tb-al-dialog',
+  templateUrl: './al-dialog.html',
+  styleUrls: []
 })
-export class AlarmsCountMappingDialogComponent extends DialogComponent<AlarmsCountMappingDialogComponent, boolean> implements OnInit {
+export class AlDialogComponent extends DialogComponent<AlDialogComponent, boolean> implements OnInit {
 
-  alarmsCountMappingFormGroup :FormGroup;
-  isAdd: boolean = false;
-  isValid: boolean = false;
+  alarmsCountMappingFormGroup: FormGroup;
+  isAdd = false;
   alarmStatusList = ['Active Unacknowledged', 'Active Acknowledged', 'Cleared Unacknowledged', 'Cleared Acknowledged'];
   severityFilterList = ['Major', 'Warning', 'Minor', 'Critical', 'Indeterminate'];
   typesFilterList = [];
+  specifyInterval = false;
 
   constructor(protected store: Store<AppState>,
               protected router: Router,
               protected translate: TranslateService,
-              @Inject(MAT_DIALOG_DATA) public data: AddEntitiesToCustomerDialogData,
               @Inject(MAT_DIALOG_DATA) public dialogData: any,
               //@SkipSelf() private errorStateMatcher: ErrorStateMatcher,
-              public dialogRef: MatDialogRef<AlarmsCountMappingDialogComponent, any>,
+              public dialogRef: MatDialogRef<AlDialogComponent, boolean>,
               public fb: FormBuilder) {
 
     super(store, router, dialogRef);
@@ -42,29 +39,24 @@ export class AlarmsCountMappingDialogComponent extends DialogComponent<AlarmsCou
   }
 
   buildForm(){
-    this.alarmsCountMappingFormGroup = this.fb.group({
-      target: new FormControl(null, [Validators.required]),
-      typesList: new FormControl(null, [Validators.required]),
-      severityList: new FormControl(null, [Validators.required]),
-      statusList: new FormControl(null, [Validators.required]),
-      latestInterval: new FormControl(null, [Validators.required])
-    });
+    this.alarmsCountMappingFormGroup = this.dialogData;
+    console.log(this.alarmsCountMappingFormGroup);
   }
 
 
   save(){
     if(!this.alarmsCountMappingFormGroup.invalid){
 
-      let alarmMappingObj = {
+      const alarmMappingObj = {
         target: this.alarmsCountMappingFormGroup.value.target,
         typesList: this.alarmsCountMappingFormGroup.value.typesList,
         severityList: this.alarmsCountMappingFormGroup.value.severityList,
         statusList: this.alarmsCountMappingFormGroup.value.statusList,
         latestInterval: this.alarmsCountMappingFormGroup.value.latestInterval
-      }
+      };
 
-      this.dialogRef.close(alarmMappingObj);
-    }         
+      this.dialogRef.close(false);
+    }
   }
 
 
@@ -108,6 +100,17 @@ export class AlarmsCountMappingDialogComponent extends DialogComponent<AlarmsCou
       }
     }
 
+  }
+
+  checkSpecifyInterval(event: boolean){
+    this.specifyInterval ? this.specifyInterval = false : this.specifyInterval = true;
+
+    if(event === true){
+
+      this.alarmsCountMappingFormGroup.get('latestInterval').setValidators(Validators.required);
+
+      this.alarmsCountMappingFormGroup.updateValueAndValidity();
+    }
   }
 
   addChip(event: MatChipInputEvent): void {
